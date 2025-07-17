@@ -5,10 +5,12 @@ const storage = multer.diskStorage({
         cb(null, "./public/temp")
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + "-" + file.originalname)
+        cb(null, file.originalname)
     }
 })
 
-const upload = multer({ storage: storage })
+export const upload = multer({
+    storage
+})
 
-export { upload }
+// Frontend sends an image, multer temporarily stores it on the server, cloudinary uploads it and returns a public URL, the database stores that URL, and the frontend uses it to display the image.
