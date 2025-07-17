@@ -55,6 +55,7 @@ const userschema = new Schema ({
     },
 })
 
+//Before saving, hash the password only if it was modified
 userschema.pre("save",async function(next){
     if(!this.isModified("password")) return next();
 
@@ -62,11 +63,13 @@ userschema.pre("save",async function(next){
     next()
 })
 
+//// Compare entered password with the hashed one in the database
 userschema.methods.ispasswordcorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
 
-userschema.methods.generateAuthToken = function () {
+// Generate a short-lived access token with user details
+userschema.methods.generateAccessToken = function () {
     //short lived access token
     return jwt.sign({ 
     _id: this._id ,
@@ -77,6 +80,7 @@ userschema.methods.generateAuthToken = function () {
     );
 }
 
+// Generate a long-lived refresh token with user ID only
 userschema.methods.generaterefreshToken = function () {
     return jwt.sign({ 
     _id: this._id },
