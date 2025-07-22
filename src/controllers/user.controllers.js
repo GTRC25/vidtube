@@ -153,7 +153,20 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const logoutUser = asyncHandler(async (req, res) => {
-   await User.findByIdAndUpdate()
+   await User.findByIdAndUpdate(
+      req.user._id,
+      { refreshToken: null },
+      { new: true }
+   )
+   const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+   }
+   return res
+      .status(200)
+      .clearCookie("accessToken", null, options)
+      .clearCookie("refreshToken", null, options)
+      .json(new ApiResponse("User logged out successfully"));
 });
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -199,4 +212,4 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 // Export the controller function to use in routes
-export { registerUser, loginUser, refreshAccessToken };
+export { registerUser, loginUser, refreshAccessToken, logoutUser };
