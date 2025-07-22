@@ -1,10 +1,10 @@
 // Import necessary utilities, models, and helper functions
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asynchandler.js";
 import { Apierror } from "../utils/APIerror.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import e from "express";
+import jwt from "jsonwebtoken";
 
 
 const generateAccessAndrefreshToken = async (userId) => {
@@ -25,8 +25,6 @@ const generateAccessAndrefreshToken = async (userId) => {
     throw new Apierror("Something went wrong while generating tokens", 500);
   }
 }
-
-
 
 // Controller: Handles user registration with validations and image uploads
 const registerUser = asyncHandler(async (req, res) => {
@@ -154,5 +152,51 @@ const loginUser = asyncHandler(async (req, res) => {
       ));
 });
 
+const logoutUser = asyncHandler(async (req, res) => {
+   await User.findByIdAndUpdate()
+});
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+   const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+
+   if (!incomingRefreshToken) {
+      throw new Apierror("Refresh token is required", 401);
+   }
+   try {
+    const decodedToken = jwt.verify(
+     incomingRefreshToken,
+     process.env.REFRESH_TOKEN_SECRET,
+    )
+
+    const user = await User.findById(decodedToken?._id);
+    if (incomingRefreshToken !== user?.refreshToken  ) {
+      throw new Apierror("Invalid refresh token", 401)
+    };
+    const options = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    };
+
+    const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndrefreshToken(user._id);
+
+    return res.status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
+      .json(
+        new ApiResponse(
+          200, 
+          { accessToken,
+          refreshToken: newRefreshToken
+          },
+          "Access token refreshed successfully"
+        ));
+
+   } catch (error) {
+    throw new Apierror("Something went wrong while refreshing token", 401);
+   }
+
+   
+});
+
 // Export the controller function to use in routes
-export { registerUser, loginUser };
+export { registerUser, loginUser, refreshAccessToken };
