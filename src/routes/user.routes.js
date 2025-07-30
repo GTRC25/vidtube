@@ -26,8 +26,6 @@ router.route("/refresh-token").post(refreshAccessToken)
 
 
 
-
-//secured route for user logout
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/change-password").post(verifyJWT, changeCurrentPassword)
 router.route("/current-user").get(verifyJWT, getCurrentUser)

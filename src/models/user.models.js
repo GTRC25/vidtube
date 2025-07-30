@@ -81,7 +81,7 @@ userschema.methods.generateAccessToken = function () {
 }
 
 // Generate a long-lived refresh token with user ID only
-userschema.methods.generaterefreshToken = function () {
+userschema.methods.generateRefreshToken = function () {
     return jwt.sign({ 
     _id: this._id },
     process.env.REFRESH_TOKEN_SECRET,

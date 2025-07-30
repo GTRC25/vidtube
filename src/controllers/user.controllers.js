@@ -5,7 +5,7 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
-import { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 
 const generateAccessAndrefreshToken = async (userId) => {
@@ -107,7 +107,7 @@ const loginUser = asyncHandler(async (req, res) => {
    const { email, password, username } = req.body;
    
    // Ensure all required fields are provided
-   if (!email || !password || !username) {
+   if (!email || !password) {
       throw new Apierror("All fields are required", 400);
    }
 
@@ -323,20 +323,18 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     }
     },
     {
-      $addFields: {
-        subscriberCount: { $size: "$subscribers" },
-      },
-      channelSubscribedToCount: { $size: "$subscribedTo" },
-      
-      isSubscribed: {
-        $cond: {
-          if: { $in: [req.user?._id, "$subscribers.subscriber"] },
-          then: true,
-          else: false
-        }}
-      
-
-    },
+     $addFields: {
+  subscriberCount: { $size: "$subscribers" },
+  channelSubscribedToCount: { $size: "$subscribedTo" },
+  isSubscribed: {
+    $cond: {
+      if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+      then: true,
+      else: false
+    }
+  }
+}}
+,
     {//project only necessary data 
       $project:{
         fullname: 1,
@@ -364,7 +362,8 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 const getWatchHistory = asyncHandler(async (req, res) => {
   const user = await User.aggregate([
     {
-      $match: { _id: new mongo.ObjectId(req.user?._id) }
+    $match: { _id: new mongoose.Types.ObjectId(req.user?._id) }
+
     },
     {
       $lookup: {
