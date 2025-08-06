@@ -1,5 +1,8 @@
 import { Router } from "express";
 import { registerUser, logoutUser, loginUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, getUserChannelProfile, updateAccountDetails, updateUserAvatar, updateUserCoverImage, getWatchHistory } from "../controllers/user.controllers.js";
+
+import { getAllVideos, publishAVideo, getVideoById, updateVideo, deleteVideo,togglePublishStatus } from "../controllers/video.controllers.js";
+
 import {upload} from "../middlewares/multer.middlewares.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
