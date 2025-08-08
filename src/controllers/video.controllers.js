@@ -45,14 +45,25 @@ const getAllVideos = asyncHandler(async (req, res) => {
     // Aggregation pipeline for advanced querying and pagination
     const aggregationPipeline = [
         { $match: matchStage }, // Apply search/filter
-        {
-            $lookup: { // Join uploader info from users collection
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "uploader",
-            },
-        },
+       {
+    $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "uploader",
+        pipeline: [
+            {
+                $project: {
+                    username: 1,
+                    fullname: 1,
+                    avatar: 1,
+                    _id: 1 // keep _id if needed
+                }
+            }
+        ]
+    }
+},
+
         { $unwind: "$uploader" }, // Flatten uploader array
         {
             $sort: { // Sort by requested field and order
@@ -185,14 +196,25 @@ const getVideoById = asyncHandler(async (req, res) => {
     // Aggregation pipeline to fetch video and uploader info, and control exposed fields
     const result = await Video.aggregate([
         { $match: { _id: new mongoose.Types.ObjectId(videoId) } },
-        {
-            $lookup: {
-                from: "users",
-                localField: "owner",
-                foreignField: "_id",
-                as: "uploader"
+           {
+    $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "uploader",
+        pipeline: [
+            {
+                $project: {
+                    username: 1,
+                    fullname: 1,
+                    avatar: 1,
+                    _id: 1 // keep _id if needed
+                }
             }
-        },
+        ]
+    }
+},
+
         { $unwind: "$uploader" },
         {
             $project: {
