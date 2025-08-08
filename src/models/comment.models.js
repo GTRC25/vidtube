@@ -13,7 +13,7 @@ const commentschema = new Schema (
     },
     owner: {
         type: Schema.Types.ObjectId,
-        ref: "owner"
+        ref: "user"
     },
 },
 
