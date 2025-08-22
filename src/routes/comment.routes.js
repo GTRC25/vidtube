@@ -4,7 +4,7 @@ import {
   addComment,
   updateComment,
   deleteComment
-} from "../controllers/comment.controller.js";
+} from "../controllers/comment.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();

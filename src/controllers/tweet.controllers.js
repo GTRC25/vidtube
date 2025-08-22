@@ -1,6 +1,6 @@
 import mongoose, { isValidObjectId } from "mongoose"
-import {Tweet} from "../models/tweet.model.js"
-import {User} from "../models/user.model.js"
+import {Tweet} from "../models/tweet.models.js"
+import {User} from "../models/user.models.js"
 import { Apierror } from "../utils/APIerror.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asynchandler.js"
